@@ -21,12 +21,12 @@ char* getIp(Client* cli);
  */
 
 /**
- * Ajoute un client à la liste donnée
+ * Adds a client to the given list
  */
 int add_client(Client* cli, Client** list, const unsigned LIST_SIZE);
 
 /**
- * Enlève un client de la liste donnée
+ * Removes a client from the given list
  */
 int remove_client(int clientId, Client** list, const unsigned LIST_SIZE);
 

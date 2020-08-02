@@ -60,7 +60,7 @@ void* handle_client(void* arg) {
     close(getSocket(cli));
 
     if (remove_client(getId(cli), clients, MAX_CLIENTS_NB) != EXIT_SUCCESS)
-        printf("Le client n'a pas pu être retiré.\n");
+        printf("Client couldn't be removed from the list\n");
 
     pthread_detach(pthread_self());
     
@@ -129,18 +129,19 @@ void run_server(int sockfd) {
         }
         clientsNb++;
 
-        // Récupération de l'adresse IP en string
+        // Gets the client's IP address in string format
         char* ip = malloc(INET_ADDRSTRLEN * sizeof(char));
         inet_ntop(their_addr.ss_family,
                   get_in_addr((struct sockaddr*)&their_addr),
                   ip,  INET_ADDRSTRLEN*sizeof(char));
 
-        // Création du nouveau client
+        // Creating a new client
         Client* newClient = create_client(new_fd, clientsNb, ip);
         int status = add_client(newClient, clients, MAX_CLIENTS_NB);
         if (status != EXIT_SUCCESS){
-            send(new_fd, "Désolé, le serveur est plein à craquer !\n", strlen("Désolé, le serveur est plein à craquer !\n"), 0);
-            printf("Le client %s n'a pas pu être ajouté à la liste. (liste pleine)\n", ip);
+            char* errmess = "Sorry, we're full!\n";
+            send(new_fd, errmess, strlen(errmess), 0);
+            printf("Client %s couldn't be added to the list\n", ip);
             destroy_client(newClient);
             close(new_fd);
         }
@@ -160,14 +161,16 @@ int main(int argc, char const *argv[])
 {
     int sockfd;
 
+    printf("Creating the server's socket...");
     if ((sockfd = create_socket()) == -1) {
-        fprintf(stderr, "unable to create the server socket\n");
+        fprintf(stderr, "unable to create the server's socket\n");
         exit(1);
     }
+    printf("OK !\n");
 
     bzero(clients, MAX_CLIENTS_NB);
 
-    printf("server: waiting for connections...\n");
+    printf("Server: waiting for connections...\n");
     run_server(sockfd);
 
     return 0;
